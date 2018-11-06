@@ -4,6 +4,7 @@
 
 import csv # used to read in test/training data
 import math
+import sys, getopt # used to read command line options
 
 # Measures L2 distance (Euclidean distance) between two points
 # Formula: sqrt((difference of each coordinate)^2)
@@ -51,9 +52,28 @@ def distanceLinf(point1, point2):
 # Main Function
 #
 
-print("hello, python!")
+# Get options for K and method
+k = 0
+method = ""
+	
+try:
+	opts, args = getopt.getopt(sys.argv[1:], 'K:m:', ['K=', 'method='])
 
-# make a list of points, each of which is a dictionary?
+except getopt.GetoptError:
+	print ('Usage: knn.py --K n --method [L1, L2, or Linf]')
+	sys.exit(2)
+
+for opt, arg in opts:
+	if opt in ('--K'):
+		k = arg
+	elif opt in ('--method'):
+                if(arg == "L1" or arg == "L2" or arg == "Linf"):
+			method = arg
+		else:
+			print ('Usage: knn.py --K n --method [L1, L2, or Linf]')
+			sys.exit(2)
+
+# make a list of points, each of which is a dictionary
 pointsList = []
 
 # Read in and store the data
@@ -70,9 +90,12 @@ print("Point 1:")
 print(pointsList[0])
 print("Point 2:")
 print(pointsList[1])
-print("L2 distance = " + str(distanceL2(pointsList[0], pointsList[1])))
-print("L1 distance = " + str(distanceL1(pointsList[0], pointsList[1])))
-print("Linf distance = " + str(distanceLinf(pointsList[0], pointsList[1])))
+if(method == "L2"):
+	print("L2 distance = " + str(distanceL2(pointsList[0], pointsList[1])))
+elif(method == "L1"):
+	print("L1 distance = " + str(distanceL1(pointsList[0], pointsList[1])))
+else:
+	print("Linf distance = " + str(distanceLinf(pointsList[0], pointsList[1])))
 
 
 
