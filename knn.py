@@ -1,5 +1,5 @@
 # K Nearest Neighbor Implementation for CMPS 142 Assignment 3
-# Author: Will Coates (so far)
+# Author: Will Coates, Jacob Wynd
 
 
 import csv # used to read in test/training data
@@ -15,7 +15,31 @@ import sys, getopt # used to read command line options
 #  to the predicted label
 # -return the sign of the predicted label
 def knn_predict(pointsList, k, x, method):
-	# implement KNN algorithm
+    # implement KNN algorithm
+    dist = []
+    label = 0
+    for point in pointsList:
+        if method == 'L2':
+            d = distance_L2(point, x)
+        elif method == 'L1':
+            d = distance_L1(point, x)
+        else:
+            d = distance_Linf(point, x)
+        dist.append([d, point.get('label')])
+        
+    distSorted = sorted(dist, key = lambda q: q[0])
+    for i in range(0, k):
+        label += int(distSorted[i][1])
+        
+    if(label > 0):
+        label = 1
+    elif(label < 0):
+        label = -1
+    if(label == 0):
+        print('Please make K an odd number')
+        sys.exit(2)
+    return label
+
 
 
 
@@ -80,7 +104,7 @@ except getopt.GetoptError:
 
 for opt, arg in opts:
 	if opt in ('--K'):
-		k = arg
+		k = int(arg)
 	elif opt in ('--method'):
                 if(arg == "L1" or arg == "L2" or arg == "Linf"):
 			method = arg
@@ -119,7 +143,8 @@ else:
 x = {'f1': 20, 'f2': 30, 'f3': 40, 'f4': 50, 'label': 0}
 
 # predict the label of point x given the training data, k, and method
-knn_predict(pointsList, k, x, method)
+print("This be the Label:")
+print(knn_predict(pointsList, k, x, method))
 
 
 
