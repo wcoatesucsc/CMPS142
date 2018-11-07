@@ -46,11 +46,6 @@ def knn_predict(pointsList, k, x, method):
 # Measures L2 distance (Euclidean distance) between two points
 # Formula: sqrt((difference of each coordinate)^2)
 def distance_L2(point1, point2):
-#        print("Point 1:")
-#        print(point1)
-#        print("Point 2:")
-#        print(point2)
-
 	# iterate over both points, summing the differences
 	# of their coordinates squared
         sum = 0
@@ -100,7 +95,7 @@ try:
 
 except getopt.GetoptError:
 	print ('Usage: knn.py --K n --method [L1, L2, or Linf]')
-	sys.exit(2)
+	sys.exit(1)
 
 for opt, arg in opts:
 	if opt in ('--K'):
@@ -110,8 +105,13 @@ for opt, arg in opts:
 			method = arg
 		else:
 			print ('Usage: knn.py --K n --method [L1, L2, or Linf]')
-			sys.exit(2)
+			sys.exit(1)
 
+# =========================================================
+# Print out some information about this run
+# =========================================================
+print("K = " + str(k))
+print("Distance method = " + method)
 # =========================================================
 # Read in and store the data as a list of points, each of which
 # is a dictionary containing its coordinates and label
@@ -119,32 +119,34 @@ for opt, arg in opts:
 
 pointsList = []
 
-with open('knn_test.csv', 'rb') as testdata:
-	reader = csv.DictReader(testdata)
+with open('knn_train.csv', 'rb') as traindata:
+	reader = csv.DictReader(traindata)
 	for row in reader:
-		#print( row['f1'], row[' f2'], row[' f3'], row[' f4'], row[' label']) 
 		# create a dictionary for this point
 		point = {'f1': row['f1'], 'f2': row[' f2'], 'f3': row[' f3'], 'f4': row[' f3'], 'label': row[' label']}
                 pointsList.append(point)
 
+traindata.close()
 
-print("Point 1:")
-print(pointsList[0])
-print("Point 2:")
-print(pointsList[1])
-if(method == "L2"):
-	print("L2 distance = " + str(distance_L2(pointsList[0], pointsList[1])))
-elif(method == "L1"):
-	print("L1 distance = " + str(distance_L1(pointsList[0], pointsList[1])))
-else:
-	print("Linf distance = " + str(distance_Linf(pointsList[0], pointsList[1])))
 
-# example point to be classified:
-x = {'f1': 20, 'f2': 30, 'f3': 40, 'f4': 50, 'label': 0}
+# =========================================================
+# Use the trained data to classify all instances in the test
+# set and print their labels
+# =========================================================
+with open('knn_test.csv', 'rb') as testdata:
+	reader = csv.DictReader(testdata)
+	index = 1 
+	for row in reader:
+		# create a dictionary for this point
+		point = {'f1': row['f1'], 'f2': row[' f2'], 'f3': row[' f3'], 'f4': row[' f3'], 'label': row[' label']}
+                print("Test Instance " + str(index) + " True Label = " + str(point.get("label")) + " Predicted Label = " + str(knn_predict(pointsList, k, point, method)))
+		index += 1
 
-# predict the label of point x given the training data, k, and method
-print("This be the Label:")
-print(knn_predict(pointsList, k, x, method))
+testdata.close()
+
+
+
+
 
 
 
