@@ -18,17 +18,36 @@ def knn_predict(pointsList, k, x, method):
     # implement KNN algorithm
     dist = []
     label = 0
+
+    reportedDistance = False
+
     for point in pointsList:
+        if(not reportedDistance):
+	        print(point)
+		print(x)
+
         if method == 'L2':
             d = distance_L2(point, x)
+            if(not reportedDistance):
+		print("L2 distance = " + str(d))
+		reportedDistance = True
+
         elif method == 'L1':
             d = distance_L1(point, x)
+            if(not reportedDistance):
+		print("L1 distance = " + str(d))
+		reportedDistance = True
         else:
             d = distance_Linf(point, x)
+            if(not reportedDistance):
+		print("Linf distance = " + str(d))
+		reportedDistance = True
+
         dist.append([d, point.get('label')])
         
     distSorted = sorted(dist, key = lambda q: q[0])
     for i in range(0, k):
+        print("Neighbor " + str(i) + " = " + str(distSorted[i][1]))
         label += int(distSorted[i][1])
         
     if(label > 0):
@@ -123,7 +142,7 @@ with open('knn_train.csv', 'rb') as traindata:
 	reader = csv.DictReader(traindata)
 	for row in reader:
 		# create a dictionary for this point
-		point = {'f1': row['f1'], 'f2': row[' f2'], 'f3': row[' f3'], 'f4': row[' f3'], 'label': row[' label']}
+		point = {'f1': row['f1'], 'f2': row[' f2'], 'f3': row[' f3'], 'f4': row[' f4'], 'label': row[' label']}
                 pointsList.append(point)
 
 traindata.close()
@@ -138,13 +157,18 @@ with open('knn_test.csv', 'rb') as testdata:
 	index = 1 
 	for row in reader:
 		# create a dictionary for this point
-		point = {'f1': row['f1'], 'f2': row[' f2'], 'f3': row[' f3'], 'f4': row[' f3'], 'label': row[' label']}
+		point = {'f1': row['f1'], 'f2': row[' f2'], 'f3': row[' f3'], 'f4': row[' f4'], 'label': row[' label']}
                 print("Test Instance " + str(index) + " True Label = " + str(point.get("label")) + " Predicted Label = " + str(knn_predict(pointsList, k, point, method)))
 		index += 1
 
 testdata.close()
 
+train1 = {'f1': 2, 'f2': 50, 'f3': 12500, 'f4': 98, 'label': 1} 
+test1 = {'f1': 0, 'f2': 20, 'f3': 5000, 'f4': 45, 'label': 1} 
 
+print("L1 distance: " + str(distance_L1(train1, test1)))
+print("L2 distance: " + str(distance_L2(train1, test1)))
+print("Linf distance: " + str(distance_Linf(train1, test1)))
 
 
 
