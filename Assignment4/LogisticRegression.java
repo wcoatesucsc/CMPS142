@@ -19,26 +19,56 @@ public class LogisticRegression {
 
         /** TODO: Constructor initializes the weight vector. Initialize it by setting it to the 0 vector. **/
         public LogisticRegression(int n) { // n is the number of weights to be learned
+           weights = new double[n];
+
+           for(int i = 0; i < n; i++){
+              weights[i] = 0;
+           }
         }
 
         /** TODO: Implement the function that returns the L2 norm of the weight vector **/
+        // L2 norm = square root of sum of squared vector values
         private double weightsL2Norm(){
+           double norm = 0;
+           for(int i = 0; i < weights.length; i++){
+              norm += Math.pow(weights[i], 2);
+           }
+           return Math.sqrt(norm);
         }
 
         /** TODO: Implement the sigmoid function **/
+        // P(Y = 1|X) = 1/(1 + e^(-w.x))
+        // P(Y = 1|X) = 1/(1 + e^(-z))
         private static double sigmoid(double z) {
+           // Java has built in Math.exp(double a) function: returns e^a
+           double denominator = 1 + Math.exp(-z); 
+           return (1/denominator);
         }
 
         /** TODO: Helper function for prediction **/
         /** Takes a test instance as input and outputs the probability of the label being 1 **/
         /** This function should call sigmoid() **/
+        // Take the dot product of the weight vector and the instance vector (x)
+        // and call sigmoid() on that double
         private double probPred1(double[] x) {
+           double dotProduct = 0;
+           for(int i = 0; i < x.length; i++){
+              dotProduct += (weights[i] * x[i]);
+           }
+           return sigmoid(dotProduct);
         }
 
         /** TODO: The prediction function **/
         /** Takes a test instance as input and outputs the predicted label **/
         /** This function should call probPred1() **/
         public int predict(double[] x) {
+           if(probPred1(x) >= 0.5){
+              return 1;
+           }
+           else{
+              return 0;
+           }
+           
         }
 
         /** This function takes a test set as input, call the predict() to predict a label for it, and prints the accuracy, P, R, and F1 score of the positive class and negative class and the confusion matrix **/
