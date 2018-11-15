@@ -96,6 +96,12 @@ public class LogisticRegression {
                 double lik = 0.0; // Stores log-likelihood of the training data for this iteration
                 for (int i=0; i < instances.size(); i++) {
                     // TODO: Train the model
+                    // Stochastic Gradient Ascent
+                    for(int w = 0; w < weights.length; w++){
+                       // weight = current + eta*instances.get(i)(true label - probPred1(x))
+                       // Questions: what's eta? should we store the weights vector so that we don't use the partially-updated one to calculate probPred1? 
+                       weights[w] = weights[w] 
+                    }
 
                     // TODO: Compute the log-likelihood of the data here. Remember to take logs when necessary
 				}
