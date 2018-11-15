@@ -97,11 +97,14 @@ public class LogisticRegression {
                 for (int i=0; i < instances.size(); i++) {
                     // TODO: Train the model
                     // Stochastic Gradient Ascent
+                    double[] tempWeights = weights;
+                    LRInstance currInstance = instances.get(i);
                     for(int w = 0; w < weights.length; w++){
-                       // weight = current + eta*instances.get(i)(true label - probPred1(x))
-                       // Questions: what's eta? should we store the weights vector so that we don't use the partially-updated one to calculate probPred1? 
-                       weights[w] = weights[w] 
+                       // weight = current + rate*featureval(true label - probPred1(x))
+                       tempWeights[w] = weights[w] + (rate*currInstance.x[w]) * (currInstance.label - probPred1(currInstance.x));
+                       // Question: Should we store the weights vector so that we don't use the partially-updated one to calculate probPred1? Currently uses tempWeights to use the same weight vector throughout the entire instance
                     }
+                    weights = tempWeights;
 
                     // TODO: Compute the log-likelihood of the data here. Remember to take logs when necessary
 				}
