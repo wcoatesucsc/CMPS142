@@ -52,7 +52,7 @@ public class LogisticRegression {
         // and call sigmoid() on that double
         private double probPred1(double[] x) {
            double dotProduct = 0;
-           for(int i = 0; i < x.length; i++){
+           for(int i = 0; i < weights.length; i++){
               dotProduct += (weights[i] * x[i]);
            }
            return sigmoid(dotProduct);
@@ -95,19 +95,27 @@ public class LogisticRegression {
             for (int n = 0; n < ITERATIONS; n++) {
                 double lik = 0.0; // Stores log-likelihood of the training data for this iteration
                 for (int i=0; i < instances.size(); i++) {
-                    // TODO: Train the model
-                    // Stochastic Gradient Ascent
-                    double[] tempWeights = weights;
-                    LRInstance currInstance = instances.get(i);
-                    for(int w = 0; w < weights.length; w++){
-                       // weight = current + rate*featureval(true label - probPred1(x))
-                       tempWeights[w] = weights[w] + (rate*currInstance.x[w]) * (currInstance.label - probPred1(currInstance.x));
-                       // Question: Should we store the weights vector so that we don't use the partially-updated one to calculate probPred1? Currently uses tempWeights to use the same weight vector throughout the entire instance
+		    // TODO: Train the model
+		    LRInstance currInstance = instances.get(i);
+                    // save prob that currInstance's label = 1. It remains the same as we
+                    // update the weight vector
+		    double probInstance1 = probPred1(currInstance.x); 
+		    for(int w = 0; w < weights.length; w++){
+                        // VERIFY I DID THIS RIGHT
+		        // weight = current + rate*featureval(true label - prob. that this instance's label = 1
+			weights[w] = weights[w] + (rate*currInstance.x[w]) * 
+                                       (currInstance.label - probInstance1);
+		    }
+		    // TODO: Compute the log-likelihood of the data here. Remember to take logs when necessary
+                    // VERIFY I DID THIS RIGHT
+                    // l(W) = true label * (w.x) - log(1 + exp(w.x))
+                    double dotProduct = 0;
+                    for(int j = 0; j < weights.length; j++){
+                        dotProduct += (weights[j] * currInstance.x[j]);
                     }
-                    weights = tempWeights;
-
-                    // TODO: Compute the log-likelihood of the data here. Remember to take logs when necessary
-				}
+                    // this uses base e, could do base 2 but would require more math
+                    lik = currInstance.label * dotProduct - Math.log(1 + Math.exp(dotProduct));
+		}
                 System.out.println("iteration: " + n + " lik: " + lik);
             }
         }
