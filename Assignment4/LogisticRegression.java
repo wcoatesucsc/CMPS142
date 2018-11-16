@@ -98,7 +98,7 @@ public class LogisticRegression {
 
             p_neg = TN / (TN + FN);
             r_neg = TN / (TN + FP);
-            f_pos = (2 * p_neg * r_neg) / (p_neg + r_neg);
+            f_neg = (2 * p_neg * r_neg) / (p_neg + r_neg);
 
             System.out.println("Accuracy="+acc);
             System.out.println("P, R, and F1 score of the positive class=" + p_pos + " " + r_pos + " " + f_pos);
@@ -113,32 +113,32 @@ public class LogisticRegression {
         /** Also compute the log-likelihood of the data in this function **/
         public void train(List<LRInstance> instances) {
             for (int n = 0; n < ITERATIONS; n++) {
-                double lik = 0.0; // Stores log-likelihood of the training data for this iteration
-                for (int i=0; i < instances.size(); i++) {
-		    // TODO: Train the model
-		    LRInstance currInstance = instances.get(i);
-                    // save prob that currInstance's label = 1. It remains the same as we
-                    // update the weight vector
-		    // double probInstance1 = probPred1(currInstance.x); 
-		    for(int w = 0; w < weights.length; w++){
-                        // VERIFY I DID THIS RIGHT
-		        // weight = current + rate*featureval(true label - prob. that this instance's label = 1
-			weights[w] = weights[w] + (rate*currInstance.x[w]) * 
-                                       (currInstance.label - probPred1(currInstance.x)); 
-		    }
+              double lik = 0.0; // Stores log-likelihood of the training data for this iteration
+              for (int i=0; i < instances.size(); i++) {
+                // TODO: Train the model
+                LRInstance currInstance = instances.get(i);
+                // save prob that currInstance's label = 1. It remains the same as we
+                // update the weight vector
+                // double probInstance1 = probPred1(currInstance.x); 
+                for(int w = 0; w < weights.length; w++){
+                  // VERIFY I DID THIS RIGHT
+                  // weight = current + rate*featureval(true label - prob. that this instance's label = 1
+                  weights[w] = weights[w] + (rate*currInstance.x[w]) * 
+                                   (currInstance.label - probPred1(currInstance.x)); 
+                }
 
-		    // TODO: Compute the log-likelihood of the data here. Remember to take logs when necessary
-                    // The log likelihood is coming out negative. 
-                    // It is maximizing, but it's still negative. Is that right?
-                    // l(W) = true label * (w.x) - log(1 + exp(w.x))
-                    double dotProduct = 0;
-                    for(int j = 0; j < weights.length; j++){
-                        dotProduct += (weights[j] * currInstance.x[j]);
-                    }
-                    // this uses natural log 
-                    lik = currInstance.label * dotProduct - Math.log(1 + Math.exp(dotProduct));
-		}
-                System.out.println("iteration: " + n + " lik: " + lik);
+                // TODO: Compute the log-likelihood of the data here. Remember to take logs when necessary
+                // The log likelihood is coming out negative. 
+                // It is maximizing, but it's still negative. Is that right?
+                // l(W) = true label * (w.x) - log(1 + exp(w.x))
+                double dotProduct = 0;
+                for(int j = 0; j < weights.length; j++){
+                  dotProduct += (weights[j] * currInstance.x[j]);
+                }
+                // this uses natural log 
+                lik = currInstance.label * dotProduct - Math.log(1 + Math.exp(dotProduct));
+              }
+              System.out.println("iteration: " + n + " lik: " + lik);
             }
         }
 
