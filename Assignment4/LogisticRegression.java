@@ -20,7 +20,6 @@ public class LogisticRegression {
         /** TODO: Constructor initializes the weight vector. Initialize it by setting it to the 0 vector. **/
         public LogisticRegression(int n) { // n is the number of weights to be learned
            weights = new double[n];
-
            for(int i = 0; i < n; i++){
               weights[i] = 0;
            }
@@ -78,6 +77,28 @@ public class LogisticRegression {
             int TP=0, TN=0, FP=0, FN=0; // TP = True Positives, TN = True Negatives, FP = False Positives, FN = False Negatives
 
             // TODO: write code here to compute the above mentioned variables
+            // Predict label for each test instance, compare to actual label
+            for(int i = 0; i < testInstances.size(); i++){
+               LRInstance currInstance = testInstances.get(i);
+               int trueLabel = currInstance.label;
+               int predLabel = predict(currInstance.x);
+               System.out.println("trueLabel = " + trueLabel + " predLabel = " + predLabel);
+
+               if      (predLabel == 1 && trueLabel == 1) TP++;
+               else if (predLabel == 1 && trueLabel == 0) FP++;
+               else if (predLabel == 0 && trueLabel == 0) TN++;
+               else                                       FN++;
+            }
+            System.out.println("TP = " + TP + " FP = " + FP + " TN = " + TN + " FN = " + FN);
+            // verify these
+            acc   = (TP + TN) / (TP + FP + TN + FN);
+            p_pos = TP / (TP + FP);
+            r_pos = TP / (TP + FN);
+            f_pos = (2 * p_pos * r_pos) / (p_pos + r_pos);
+
+            p_neg = TN / (TN + FN);
+            r_neg = TN / (TN + FP);
+            f_pos = (2 * p_neg * r_neg) / (p_neg + r_neg);
 
             System.out.println("Accuracy="+acc);
             System.out.println("P, R, and F1 score of the positive class=" + p_pos + " " + r_pos + " " + f_pos);
@@ -106,13 +127,14 @@ public class LogisticRegression {
                                        (currInstance.label - probInstance1);
 		    }
 		    // TODO: Compute the log-likelihood of the data here. Remember to take logs when necessary
-                    // VERIFY I DID THIS RIGHT
+                    // The log likelihood is coming out negative. 
+                    // It is maximizing, but it's still negative. Is that right?
                     // l(W) = true label * (w.x) - log(1 + exp(w.x))
                     double dotProduct = 0;
                     for(int j = 0; j < weights.length; j++){
                         dotProduct += (weights[j] * currInstance.x[j]);
                     }
-                    // this is natural log, could do log base 2 but would require more math
+                    // this uses natural log 
                     lik = currInstance.label * dotProduct - Math.log(1 + Math.exp(dotProduct));
 		}
                 System.out.println("iteration: " + n + " lik: " + lik);
