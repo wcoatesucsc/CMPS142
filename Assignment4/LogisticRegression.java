@@ -1,4 +1,4 @@
-package cmps142_hw4;
+//package cmps142_hw4;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,8 +41,7 @@ public class LogisticRegression {
         // P(Y = 1|X) = 1/(1 + e^(-z))
         private static double sigmoid(double z) {
            // Java has built in Math.exp(double a) function: returns e^a
-           double denominator = 1 + Math.exp(-z); 
-           return (1/denominator);
+           return (1/(1 + Math.exp(-z)));
         }
 
         /** TODO: Helper function for prediction **/
@@ -113,7 +112,7 @@ public class LogisticRegression {
                     for(int j = 0; j < weights.length; j++){
                         dotProduct += (weights[j] * currInstance.x[j]);
                     }
-                    // this uses base e, could do base 2 but would require more math
+                    // this is natural log, could do log base 2 but would require more math
                     lik = currInstance.label * dotProduct - Math.log(1 + Math.exp(dotProduct));
 		}
                 System.out.println("iteration: " + n + " lik: " + lik);
@@ -126,6 +125,8 @@ public class LogisticRegression {
 
             /** TODO: Constructor for initializing the Instance object **/
             public LRInstance(int label, double[] x) {
+               this.label = label;
+               this.x = x;
             }
         }
 
