@@ -90,13 +90,13 @@ public class LogisticRegression {
             }
             System.out.println("TP = " + TP + " FP = " + FP + " TN = " + TN + " FN = " + FN);
             // verify these
-            acc   = (TP + TN) / (TP + FP + TN + FN);
-            p_pos = TP / (TP + FP);
-            r_pos = TP / (TP + FN);
+            acc   = (double) (TP + TN) / (double) (TP + FP + TN + FN);
+            p_pos = (double) TP / (double) (TP + FP);
+            r_pos = (double) TP / (double) (TP + FN);
             f_pos = (2 * p_pos * r_pos) / (p_pos + r_pos);
 
-            p_neg = TN / (TN + FN);
-            r_neg = TN / (TN + FP);
+            p_neg = (double) TN / (double) (TN + FN);
+            r_neg = (double) TN / (double) (TN + FP);
             f_neg = (2 * p_neg * r_neg) / (p_neg + r_neg);
 
             System.out.println("Accuracy="+acc);
@@ -118,14 +118,12 @@ public class LogisticRegression {
                 LRInstance currInstance = instances.get(i);
                 // save prob that currInstance's label = 1. It remains the same as we
                 // update the weight vector
-                double probInstance1 = probPred1(currInstance.x); 
+                double hyp = probPred1(currInstance.x); 
                 for(int w = 0; w < weights.length; w++){
                   // VERIFY I DID THIS RIGHT
                   // weight = current + rate*featureval(true label - prob. that this instance's label = 1
-                  //weights[w] = weights[w] + (rate*currInstance.x[w]) * 
-                                   //(currInstance.label - probPred1(currInstance.x)); 
                   weights[w] = weights[w] + (rate*currInstance.x[w]) * 
-                                   (currInstance.label - probInstance1); 
+                                   (currInstance.label - hyp); 
                 }
 
                 // TODO: Compute the log-likelihood of the data here. Remember to take logs when necessary
@@ -137,7 +135,7 @@ public class LogisticRegression {
                   dotProduct += (weights[j] * currInstance.x[j]);
                 }
                 // this uses natural log 
-                lik = currInstance.label * dotProduct - Math.log(1 + Math.exp(dotProduct));
+                lik += currInstance.label * dotProduct - Math.log(1 + Math.exp(dotProduct));
               }
               System.out.println("iteration: " + n + " lik: " + lik);
             }
