@@ -119,13 +119,14 @@ public class LogisticRegression {
 		    LRInstance currInstance = instances.get(i);
                     // save prob that currInstance's label = 1. It remains the same as we
                     // update the weight vector
-		    double probInstance1 = probPred1(currInstance.x); 
+		    // double probInstance1 = probPred1(currInstance.x); 
 		    for(int w = 0; w < weights.length; w++){
                         // VERIFY I DID THIS RIGHT
 		        // weight = current + rate*featureval(true label - prob. that this instance's label = 1
 			weights[w] = weights[w] + (rate*currInstance.x[w]) * 
-                                       (currInstance.label - probInstance1);
+                                       (currInstance.label - probPred1(currInstance.x)); 
 		    }
+
 		    // TODO: Compute the log-likelihood of the data here. Remember to take logs when necessary
                     // The log likelihood is coming out negative. 
                     // It is maximizing, but it's still negative. Is that right?
