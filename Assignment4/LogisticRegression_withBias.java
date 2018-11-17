@@ -1,4 +1,4 @@
-package cmps142_hw4;
+//package cmps142_hw4;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,6 +21,12 @@ public class LogisticRegression_withBias {
         // n is the number of weights to be learned
 	public LogisticRegression_withBias(int n) 
 	{
+		/* 
+		  You would think we have to set the weights vector as
+		  weights = new double[n + 1]; to handle the bias term,
+		  but n is determined by a test instance's .x.length, so
+		  the extra feature is already included 
+		*/
 		weights = new double[n];
 		//The default values for Doubles in java is 0.0, so there's nothing else to do .
         }
@@ -134,8 +140,6 @@ public class LogisticRegression_withBias {
                 		}
 
                 		// TODO: Compute the log-likelihood of the data here. Remember to take logs when necessary
-                		// The log likelihood is coming out negative.
-                		// It is maximizing, but it's still negative. Is that right?
                 		// l(W) = true label * (w.x) - log(1 + exp(w.x))
                 		double dotProduct = 0;
                 		for(int j = 0; j < weights.length; j++)
@@ -157,10 +161,19 @@ public class LogisticRegression_withBias {
             /** TODO: Constructor for initializing the Instance object **/
             public LRInstance(int label, double[] x) 
 	    {
+		this.label = label;
             	// TO INCLUDE BIAS TERM, SET AN "ALWAYS 1" FEATURE AT THE END
 		// OF THE FEATURE VECTOR (X)
-		this.label = label;
-            	this.x = x;
+		// I think the best way is to create a new array that's 
+		// one index longer and copy everything into that. Can't just
+		// tack on another index to a Java array
+		double[] biasedX = new double[x.length + 1];
+		for(int i = 0; i < x.length; i++){
+			biasedX[i] = x[i];
+		}
+		biasedX[x.length] = 1; // set the bias term to "always 1"
+            	this.x = biasedX;
+		//this.x = x;
 	    }
         }
 
