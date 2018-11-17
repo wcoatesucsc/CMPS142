@@ -88,8 +88,6 @@ public class LogisticRegression {
                else if (predLabel == 0 && trueLabel == 0) TN++;
                else                                       FN++;
             }
-            System.out.println("TP = " + TP + " FP = " + FP + " TN = " + TN + " FN = " + FN);
-            // verify these
             acc   = (double) (TP + TN) / (double) (TP + FP + TN + FN);
             p_pos = (double) TP / (double) (TP + FP);
             r_pos = (double) TP / (double) (TP + FN);
@@ -98,6 +96,9 @@ public class LogisticRegression {
             p_neg = (double) TN / (double) (TN + FN);
             r_neg = (double) TN / (double) (TN + FP);
             f_neg = (2 * p_neg * r_neg) / (p_neg + r_neg);
+
+            System.out.println("Positive examples: " + (TP + FN));
+            System.out.println("Negative examples: " + (TN + FP));
 
             System.out.println("Accuracy="+acc);
             System.out.println("P, R, and F1 score of the positive class=" + p_pos + " " + r_pos + " " + f_pos);
@@ -120,21 +121,17 @@ public class LogisticRegression {
                 // update the weight vector
                 double hyp = probPred1(currInstance.x); 
                 for(int w = 0; w < weights.length; w++){
-                  // VERIFY I DID THIS RIGHT
                   // weight = current + rate*featureval(true label - prob. that this instance's label = 1
                   weights[w] = weights[w] + (rate*currInstance.x[w]) * 
                                    (currInstance.label - hyp); 
                 }
 
                 // TODO: Compute the log-likelihood of the data here. Remember to take logs when necessary
-                // The log likelihood is coming out negative. 
-                // It is maximizing, but it's still negative. Is that right?
-                // l(W) = true label * (w.x) - log(1 + exp(w.x))
                 double dotProduct = 0;
                 for(int j = 0; j < weights.length; j++){
                   dotProduct += (weights[j] * currInstance.x[j]);
                 }
-                // this uses natural log 
+                // l(W) = sum(true label * (w.x) - log(1 + exp(w.x)))
                 lik += currInstance.label * dotProduct - Math.log(1 + Math.exp(dotProduct));
               }
               System.out.println("iteration: " + n + " lik: " + lik);
