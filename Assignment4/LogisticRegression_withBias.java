@@ -157,7 +157,9 @@ public class LogisticRegression_withBias {
             /** TODO: Constructor for initializing the Instance object **/
             public LRInstance(int label, double[] x) 
 	    {
-            	this.label = label;
+            	// TO INCLUDE BIAS TERM, SET AN "ALWAYS 1" FEATURE AT THE END
+		// OF THE FEATURE VECTOR (X)
+		this.label = label;
             	this.x = x;
 	    }
         }
