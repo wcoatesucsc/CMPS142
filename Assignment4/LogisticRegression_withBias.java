@@ -18,28 +18,58 @@ public class LogisticRegression_withBias {
         private int ITERATIONS = 200;
 
         /** TODO: Constructor initializes the weight vector. Initialize it by setting it to the 0 vector. **/
-        public LogisticRegression_withBias(int n) { // n is the number of weights to be learned
+        // n is the number of weights to be learned
+	public LogisticRegression_withBias(int n) 
+	{
+		weights = new double[n];
+		//The default values for Doubles in java is 0.0, so there's nothing else to do .
         }
 
         /** TODO: Implement the function that returns the L2 norm of the weight vector **/
-        private double weightsL2Norm(){
-        }
+        private double weightsL2Norm()
+	{
+		double norm = 0;
+           	for(int i = 0; i < weights.length; i++)
+		{
+              		norm += Math.pow(weights[i], 2);
+           	}
+		return Math.sqrt(norm);
+	}
 
         /** TODO: Implement the sigmoid function **/
-        private static double sigmoid(double z) {
-        }
+        private static double sigmoid(double z) 
+	{
+		// Java has built in Math.exp(double a) function: returns e^a
+         	return (1/(1 + Math.exp(-z)));
+	}
 
         /** TODO: Helper function for prediction **/
         /** Takes a test instance as input and outputs the probability of the label being 1 **/
         /** This function should call sigmoid() **/
-        private double probPred1(double[] x) {
-        }
+        private double probPred1(double[] x) 
+	{
+		double dotProduct = 0;
+           	for(int i = 0; i < weights.length; i++)
+		{
+              		dotProduct += (weights[i] * x[i]);
+           	}
+		return sigmoid(dotProduct);
+	}
 
         /** TODO: The prediction function **/
         /** Takes a test instance as input and outputs the predicted label **/
         /** This function should call probPred1() **/
-        public int predict(double[] x) {
-        }
+        public int predict(double[] x) 
+	{
+		if(probPred1(x) >= 0.5)
+		{
+              		return 1;
+           	}
+           	else
+		{	
+              		return 0;
+           	}
+	}
 
         /** This function takes a test set as input, call the predict() to predict a label for it, and prints the accuracy, P, R, and F1 score of the positive class and negative class and the confusion matrix **/
         public void printPerformance(List<LRInstance> testInstances) {
@@ -49,6 +79,28 @@ public class LogisticRegression_withBias {
             int TP=0, TN=0, FP=0, FN=0; // TP = True Positives, TN = True Negatives, FP = False Positives, FN = False Negatives
 
             // TODO: write code here to compute the above mentioned variables
+	    // Predict label for each test instance, compare to actual label
+            for(int i = 0; i < testInstances.size(); i++)
+	    {
+               LRInstance currInstance = testInstances.get(i);
+               int trueLabel = currInstance.label;
+               int predLabel = predict(currInstance.x);
+
+               if      (predLabel == 1 && trueLabel == 1) TP++;
+               else if (predLabel == 1 && trueLabel == 0) FP++;
+               else if (predLabel == 0 && trueLabel == 0) TN++;
+               else                                       FN++;
+            }
+            System.out.println("TP = " + TP + " FP = " + FP + " TN = " + TN + " FN = " + FN);
+            // verify these
+            acc   = (double) (TP + TN) / (double) (TP + FP + TN + FN);
+            p_pos = (double) TP / (double) (TP + FP);
+            r_pos = (double) TP / (double) (TP + FN);
+            f_pos = (2 * p_pos * r_pos) / (p_pos + r_pos);
+
+            p_neg = (double) TN / (double) (TN + FN);
+            r_neg = (double) TN / (double) (TN + FP);
+            f_neg = (2 * p_neg * r_neg) / (p_neg + r_neg);
 
             System.out.println("Accuracy="+acc);
             System.out.println("P, R, and F1 score of the positive class=" + p_pos + " " + r_pos + " " + f_pos);
@@ -61,25 +113,53 @@ public class LogisticRegression_withBias {
 
         /** Train the Logistic Regression using Stochastic Gradient Ascent **/
         /** Also compute the log-likelihood of the data in this function **/
-        public void train(List<LRInstance> instances) {
-            for (int n = 0; n < ITERATIONS; n++) {
-                double lik = 0.0; // Stores log-likelihood of the training data for this iteration
-                for (int i=0; i < instances.size(); i++) {
-                    // TODO: Train the model
+        public void train(List<LRInstance> instances) 
+	{
+        	for (int n = 0; n < ITERATIONS; n++)
+		{
+        		double lik = 0.0; // Stores log-likelihood of the training data for this iteration
+        		for (int i=0; i < instances.size(); i++)
+			{
+                		// TODO: Train the model
+                		LRInstance currInstance = instances.get(i);
+                		// save prob that currInstance's label = 1. It remains the same as we
+                		// update the weight vector
+                		double hyp = probPred1(currInstance.x);
+                		for(int w = 0; w < weights.length; w++)
+				{
+                  			// VERIFY I DID THIS RIGHT
+                  			// weight = current + rate*featureval(true label - prob. that this instance's label = 1
+                  			weights[w] = weights[w] + (rate*currInstance.x[w]) *
+                        		(currInstance.label - hyp);
+                		}
 
-                    // TODO: Compute the log-likelihood of the data here. Remember to take logs when necessary
-                }
-                System.out.println("iteration: " + n + " lik: " + lik);
-            }
+                		// TODO: Compute the log-likelihood of the data here. Remember to take logs when necessary
+                		// The log likelihood is coming out negative.
+                		// It is maximizing, but it's still negative. Is that right?
+                		// l(W) = true label * (w.x) - log(1 + exp(w.x))
+                		double dotProduct = 0;
+                		for(int j = 0; j < weights.length; j++)
+				{
+                  			dotProduct += (weights[j] * currInstance.x[j]);
+                		}
+                		// this uses natural log
+                		lik += currInstance.label * dotProduct - Math.log(1 + Math.exp(dotProduct));
+              		}
+              		System.out.println("iteration: " + n + " lik: " + lik);
+            	}
         }
 
-        public static class LRInstance {
+        public static class LRInstance 
+	{
             public int label; // Label of the instance. Can be 0 or 1
             public double[] x; // The feature vector for the instance
 
             /** TODO: Constructor for initializing the Instance object **/
-            public LRInstance(int label, double[] x) {
-            }
+            public LRInstance(int label, double[] x) 
+	    {
+            	this.label = label;
+            	this.x = x;
+	    }
         }
 
         /** Function to read the input dataset **/
