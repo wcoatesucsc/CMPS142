@@ -1,10 +1,10 @@
 The files LogisticRegression.java, LogisticRegression_withBias.java, and LogisticRegression_withRegularization.java
 contain our code for Assignment 4. These files are written in Java 8. To run each file, compile it with this command:
 
-javac LogisticRegression.java
+javac <FileName>.java
 
 and run it with:
 
-java LogisticRegression
+java <FileName>
 
 If JDK 8 is installed on your machine, there should be no problems compiling or running our code.
