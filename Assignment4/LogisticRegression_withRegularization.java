@@ -173,18 +173,7 @@ public class LogisticRegression_withRegularization {
             	public LRInstance(int label, double[] x) 
 	    	{
                 	this.label = label;
-                	// TO INCLUDE BIAS TERM, SET AN "ALWAYS 1" FEATURE AT THE END
-                	// OF THE FEATURE VECTOR (X)
-                	// I think the best way is to create a new array that's
-                	// one index longer and copy everything into that. Can't just
-                	// tack on another index to a Java array
-                	double[] biasedX = new double[x.length + 1];
-                	for(int i = 0; i < x.length; i++)
-			{
-                		biasedX[i] = x[i];
-                	}
-                	biasedX[x.length] = 1; // Set the bias term to 1.
-                	this.x = biasedX;
+			this.x = x;
 		}
         }
 
