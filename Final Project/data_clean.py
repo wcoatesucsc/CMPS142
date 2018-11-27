@@ -6,8 +6,6 @@
 #
 
 
-
-
 #
 # Input:  .csv file with PhraseID, SentenceID, Phrase[, label]
 # Output: .csv file with PhraseID, SentenceID, Cleaned Phrase[, label]
@@ -41,6 +39,8 @@ def clean_phrase(phrase):
 	tokens = [word for word in tokens if word.isalpha()]
 	# filter out stop words
 	stop_words = set(stopwords.words('english'))
+	tokens = [word for word in tokens if not word in stop_words]
+        
 	# filter out short tokens
 	tokens = [word for word in tokens if len(word) > 1]
 	# 
