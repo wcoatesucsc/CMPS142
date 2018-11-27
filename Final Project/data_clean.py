@@ -21,10 +21,17 @@ import nltk
 from nltk.corpus import stopwords
 nltk.download('wordnet')
 from nltk.stem import WordNetLemmatizer
+from nltk.probability import FreqDist
+from nltk.tokenize import word_tokenize
+
 lemmatizer = WordNetLemmatizer()
 
 import csv
 import string
+
+
+clean_corpus = []
+
 
 def clean_phrase(phrase):
 	# convert phrase to lowercase
@@ -48,6 +55,9 @@ def clean_phrase(phrase):
 	# 
 	# lemmatization:
 	tokens = [lemmatizer.lemmatize(word) for word in tokens]
+
+	for word in range(len(tokens)):
+		clean_corpus.append(tokens[word])
 			
 	# converting list of tokens back to a string
 	separator = " "
@@ -78,8 +88,16 @@ def main():
 				# write the same row (except with a clean phrase) to the output file
 				#NOTE! WHEN RUNNING ON TEST DATA EXCLUDE ROW[3]!!
 				csv_writer.writerow([row[0], row[1], cleanedPhrase, row[3]])
-	incsvfile.close()
-	outcsvfile.close()	
 
+	incsvfile.close()
+	outcsvfile.close()
+	
+	#print(clean_corpus)
+	fdist = FreqDist(clean_corpus)
+	print("Words that appear only once:")
+	print(fdist.hapaxes())
+
+        # should write to csv here, when we can filter out hapaxes,
+	# instead of above
 
 main()
