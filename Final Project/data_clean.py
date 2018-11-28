@@ -30,7 +30,8 @@ import csv
 import string
 
 
-clean_corpus = []
+clean_corpus_words = []
+clean_corpus_phrases = []
 
 
 def clean_phrase(phrase):
@@ -57,7 +58,7 @@ def clean_phrase(phrase):
 	tokens = [lemmatizer.lemmatize(word) for word in tokens]
 
 	for word in range(len(tokens)):
-		clean_corpus.append(tokens[word])
+		clean_corpus_words.append(tokens[word])
 			
 	# converting list of tokens back to a string
 	separator = " "
@@ -68,36 +69,50 @@ def clean_phrase(phrase):
 
 def main():
 	print("Cleaning data! :)")
-	# simultaneously read from train.csv and write to clean_train.csv
+	# Read data from train.csv and output a cleaned phrase
+	# to each slot in clean_corpus_phrases
 	with open('train.csv', 'r', newline='') as incsvfile:
-		with open('clean_train.csv', 'w', newline='') as outcsvfile:
-			csv_reader = csv.reader(incsvfile, delimiter=",")
+		#with open('clean_train.csv', 'w', newline='') as outcsvfile:
+		csv_reader = csv.reader(incsvfile, delimiter=",")
 			
-			csv_writer = csv.writer(outcsvfile, delimiter=",")
-			# write header row
-			# NOTE! WHEN RUNNING ON TEST DATA EXCLUDE SENTIMENT!
-			#csv_writer.writerow(['PhraseId', 'SentenceId', 'Phrase', 'Sentiment']) 
+		rownum = 0	
+		for row in csv_reader:
+			rownum += 1
+			print("Reading row: " + str(rownum))
+			# grab phrase and apply cleaning procedures to it
+			phrase = row[2]
+			cleanedPhrase = clean_phrase(phrase)
+			#NOTE! WHEN RUNNING ON TEST DATA EXCLUDE ROW[3]!!
+			clean_corpus_phrases.append(cleanedPhrase)
 
-			rownum = 0	
-			for row in csv_reader:
-				rownum += 1
-				print("row: " + str(rownum))
-				# grab phrase and apply cleaning procedures to it
-				phrase = row[2]
-				cleanedPhrase = clean_phrase(phrase)
-				# write the same row (except with a clean phrase) to the output file
-				#NOTE! WHEN RUNNING ON TEST DATA EXCLUDE ROW[3]!!
-				csv_writer.writerow([row[0], row[1], cleanedPhrase, row[3]])
+
+	# Detect words that only occur once in the entire corpus. We will
+	# throw those out
+	fdist = FreqDist(clean_corpus_words)
+	hapaxes = fdist.hapaxes()
+	
+	# Now that we've found the words that only occur once, filter
+	# those out of our cleaned phrases and write those to
+	# the output file
+	with open('clean_train.csv', 'w', newline='') as outcsvfile:
+		csv_writer = csv.writer(outcsvfile, delimiter=",")
+		# write header row
+		# NOTE! WHEN RUNNING ON TEST DATA EXCLUDE SENTIMENT!
+		#csv_writer.writerow(['PhraseId', 'SentenceId', 'Phrase', 'Sentiment']) 
+		rownum = 0
+		for phrase in clean_corpus_phrases:
+			rownum += 1
+			print("Writing row: " + str(rownum))
+			# write each cleaned phrase to the output file,
+			# filtering out the rare words if they occur
+			tokens = phrase.split()
+			tokens = [word for word in tokens if word not in hapaxes]
+			# converting list of tokens back to a string
+			separator = " "
+			filtered_phrase = separator.join(tokens)
+			csv_writer.writerow([row[0], row[1], filtered_phrase, row[3]])
+			
 
 	incsvfile.close()
 	outcsvfile.close()
-	
-	#print(clean_corpus)
-	fdist = FreqDist(clean_corpus)
-	print("Words that appear only once:")
-	print(fdist.hapaxes())
-
-        # should write to csv here, when we can filter out hapaxes,
-	# instead of above
-
 main()
