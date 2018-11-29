@@ -43,14 +43,15 @@ def clean_phrase(phrase):
 	table = str.maketrans('', '', string.punctuation)
 	tokens = [w.translate(table) for w in tokens]
 
+	# filter out short tokens
+	tokens = [word for word in tokens if len(word) > 1]
+
 	# remove other non-alphabetic tokens
 	tokens = [word for word in tokens if word.isalpha()]
 	# filter out stop words
 	stop_words = set(stopwords.words('english'))
 	tokens = [word for word in tokens if not word in stop_words]
         
-	# filter out short tokens
-	tokens = [word for word in tokens if len(word) > 1]
 	# 
 	# OUR ADDITIONS TO TUTORIAL CLEANING METHODS
 	# 
@@ -86,31 +87,33 @@ def main():
 			clean_corpus_phrases.append(cleanedPhrase)
 
 
-	# Detect words that only occur once in the entire corpus. We will
-	# throw those out
-	fdist = FreqDist(clean_corpus_words)
-	hapaxes = fdist.hapaxes()
+		# Detect words that only occur once in the entire corpus. We will
+		# throw those out
+		fdist = FreqDist(clean_corpus_words)
+		hapaxes = fdist.hapaxes()
 	
-	# Now that we've found the words that only occur once, filter
-	# those out of our cleaned phrases and write those to
-	# the output file
-	with open('clean_train.csv', 'w', newline='') as outcsvfile:
-		csv_writer = csv.writer(outcsvfile, delimiter=",")
-		# write header row
-		# NOTE! WHEN RUNNING ON TEST DATA EXCLUDE SENTIMENT!
-		#csv_writer.writerow(['PhraseId', 'SentenceId', 'Phrase', 'Sentiment']) 
-		rownum = 0
-		for phrase in clean_corpus_phrases:
-			rownum += 1
-			print("Writing row: " + str(rownum))
-			# write each cleaned phrase to the output file,
-			# filtering out the rare words if they occur
-			tokens = phrase.split()
-			tokens = [word for word in tokens if word not in hapaxes]
-			# converting list of tokens back to a string
-			separator = " "
-			filtered_phrase = separator.join(tokens)
-			csv_writer.writerow([row[0], row[1], filtered_phrase, row[3]])
+		# Now that we've found the words that only occur once, filter
+		# those out of our cleaned phrases and write those to
+		# the output file
+		with open('clean_train.csv', 'w', newline='') as outcsvfile:
+			csv_writer = csv.writer(outcsvfile, delimiter=",")
+			# write header row
+			# NOTE! WHEN RUNNING ON TEST DATA EXCLUDE SENTIMENT!
+			#csv_writer.writerow(['PhraseId', 'SentenceId', 'Phrase', 'Sentiment']) 
+		# resetting the input file so we can retain row information
+			incsvfile.seek(0)
+			rownum = 0
+			for row in csv_reader:
+				rownum += 1
+				print("Writing row: " + str(rownum))
+				# write each cleaned phrase to the output file,
+				# filtering out the rare words if they occur
+				tokens = clean_corpus_phrases[rownum - 1].split()
+				tokens = [word for word in tokens if word not in hapaxes]
+				# converting list of tokens back to a string
+				separator = " "
+				filtered_phrase = separator.join(tokens)
+				csv_writer.writerow([row[0], row[1], filtered_phrase, row[3]])
 			
 
 	incsvfile.close()
