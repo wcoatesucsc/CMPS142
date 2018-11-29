@@ -29,7 +29,6 @@ lemmatizer = WordNetLemmatizer()
 import csv
 import string
 
-
 clean_corpus_words = []
 clean_corpus_phrases = []
 
@@ -51,9 +50,7 @@ def clean_phrase(phrase):
 	# filter out stop words
 	stop_words = set(stopwords.words('english'))
 	tokens = [word for word in tokens if not word in stop_words]
-        
-	# 
-	# OUR ADDITIONS TO TUTORIAL CLEANING METHODS
+        # # OUR ADDITIONS TO TUTORIAL CLEANING METHODS
 	# 
 	# lemmatization:
 	tokens = [lemmatizer.lemmatize(word) for word in tokens]
@@ -70,6 +67,9 @@ def clean_phrase(phrase):
 
 def main():
 	print("Cleaning data! :)")
+	# Also output to a .txt file to play nice with fasttext
+	fasttext_input = open("fasttext_input.txt", "w")
+
 	# Read data from train.csv and output a cleaned phrase
 	# to each slot in clean_corpus_phrases
 	with open('train.csv', 'r', newline='') as incsvfile:
@@ -79,7 +79,7 @@ def main():
 		rownum = 0	
 		for row in csv_reader:
 			rownum += 1
-			print("Reading row: " + str(rownum))
+			print( "Reading row: ", str(rownum), end='\r') 
 			# grab phrase and apply cleaning procedures to it
 			phrase = row[2]
 			cleanedPhrase = clean_phrase(phrase)
@@ -105,7 +105,7 @@ def main():
 			rownum = 0
 			for row in csv_reader:
 				rownum += 1
-				print("Writing row: " + str(rownum))
+				print( "Reading row: ", str(rownum), end='\r') 
 				# write each cleaned phrase to the output file,
 				# filtering out the rare words if they occur
 				tokens = clean_corpus_phrases[rownum - 1].split()
@@ -113,9 +113,16 @@ def main():
 				# converting list of tokens back to a string
 				separator = " "
 				filtered_phrase = separator.join(tokens)
+				# writing to both output csv and output txt
 				csv_writer.writerow([row[0], row[1], filtered_phrase, row[3]])
+				if(rownum != 1):
+					score = row[3]
+					fasttext_input.write("__label__" + score + " " + filtered_phrase + '\n')
 			
 
 	incsvfile.close()
 	outcsvfile.close()
+	fasttext_input.close()
+	print("Cleaned output written to clean_train.csv and fasttext_input.txt!")
+	print("Have a nice day!")
 main()
