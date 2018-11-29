@@ -32,7 +32,9 @@ import string
 clean_corpus_words = []
 clean_corpus_phrases = []
 
-
+# takes in a string (phrase), tokenizes it, performs
+# various data preprocessing, rejoins it as a string,
+# and returns the cleaned string
 def clean_phrase(phrase):
 	# convert phrase to lowercase
 	phraseLower = phrase.lower()
@@ -60,15 +62,27 @@ def clean_phrase(phrase):
 			
 	# converting list of tokens back to a string
 	separator = " "
-	cleanedPhrase = separator.join(tokens)
-	return cleanedPhrase
-			
+	cleaned_phrase = separator.join(tokens)
+	return cleaned_phrase
+		
 
-
+# takes a phrase and a list of words to filter out of that
+# phrase, returns the filtered phrase
+def filter_words_from_list(phrase, hapaxes):
+	tokens = phrase.split()
+	tokens = [word for word in tokens if word not in hapaxes]
+	# converting list of tokens back to a string
+	separator = " "
+	filtered_phrase = separator.join(tokens)
+	return filtered_phrase
+	
 def main():
 	print("Cleaning data! :)")
 	# Also output to a .txt file to play nice with fasttext
-	fasttext_input = open("fasttext_input.txt", "w")
+	labeled_clean_train_txt = open("labeled_cleaned_train.txt", "w")
+	unlabeled_clean_train_txt = open("unlabeled_cleaned_train.txt", "w")
+
+	dictionary_txt = open("dictionary.txt", "w")
 
 	# Read data from train.csv and output a cleaned phrase
 	# to each slot in clean_corpus_phrases
@@ -79,17 +93,19 @@ def main():
 		rownum = 0	
 		for row in csv_reader:
 			rownum += 1
-			print( "Reading row: ", str(rownum), end='\r') 
+			print("Reading row: ", str(rownum), end='\r') 
 			# grab phrase and apply cleaning procedures to it
 			phrase = row[2]
-			cleanedPhrase = clean_phrase(phrase)
-			#NOTE! WHEN RUNNING ON TEST DATA EXCLUDE ROW[3]!!
-			clean_corpus_phrases.append(cleanedPhrase)
-
+			cleaned_phrase = clean_phrase(phrase)
+			clean_corpus_phrases.append(cleaned_phrase)
+		print("Done reading data             ")
 
 		# Detect words that only occur once in the entire corpus. We will
 		# throw those out
 		fdist = FreqDist(clean_corpus_words)
+		dictionary_list = set(clean_corpus_words)
+		#print(dictionary_list)
+
 		hapaxes = fdist.hapaxes()
 	
 		# Now that we've found the words that only occur once, filter
@@ -99,30 +115,37 @@ def main():
 			csv_writer = csv.writer(outcsvfile, delimiter=",")
 			# write header row
 			# NOTE! WHEN RUNNING ON TEST DATA EXCLUDE SENTIMENT!
-			#csv_writer.writerow(['PhraseId', 'SentenceId', 'Phrase', 'Sentiment']) 
-		# resetting the input file so we can retain row information
+
+			# resetting the input file so we can retain row information
 			incsvfile.seek(0)
 			rownum = 0
 			for row in csv_reader:
 				rownum += 1
-				print( "Reading row: ", str(rownum), end='\r') 
+				print( "Writing row: ", str(rownum), end='\r') 
 				# write each cleaned phrase to the output file,
 				# filtering out the rare words if they occur
-				tokens = clean_corpus_phrases[rownum - 1].split()
-				tokens = [word for word in tokens if word not in hapaxes]
-				# converting list of tokens back to a string
-				separator = " "
-				filtered_phrase = separator.join(tokens)
+				phrase = clean_corpus_phrases[rownum - 1]
+				filtered_phrase = filter_words_from_list(phrase, hapaxes)
 				# writing to both output csv and output txt
+				# NOTE! WHEN RUNNING ON TEST DATA EXCLUDE SENTIMENT!
 				csv_writer.writerow([row[0], row[1], filtered_phrase, row[3]])
 				if(rownum != 1):
 					score = row[3]
-					fasttext_input.write("__label__" + score + " " + filtered_phrase + '\n')
-			
+					labeled_clean_train_txt.write("__label__" + score + " " + filtered_phrase + '\n')
+					unlabeled_clean_train_txt.write(filtered_phrase + '\n')
+			print("Done writing data              ")	
 
+
+	# now output dictionary of all words in dataset
+	for word in dictionary_list:
+		dictionary_txt.write(word + '\n')
+		
 	incsvfile.close()
 	outcsvfile.close()
-	fasttext_input.close()
-	print("Cleaned output written to clean_train.csv and fasttext_input.txt!")
+	labeled_clean_train_txt.close()
+	unlabeled_clean_train_txt.close()
+	dictionary_txt.close()
+	print("Cleaned output written to clean_train.csv and labeled_clean_train_txt.txt!")
+	print("Also wrote output without labels to unlabeled_clean_train.txt, and a dictionary to dictionary.txt")
 	print("Have a nice day!")
 main()
