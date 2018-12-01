@@ -25,6 +25,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import svm, datasets
 
+# for some reason the target is an array
+import array
 
 def make_meshgrid(x, y, h=.02):
     """Create a mesh of points to plot in
@@ -66,14 +68,29 @@ def plot_contours(ax, clf, xx, yy, **params):
 # import some data to play with
 iris = datasets.load_iris()
 
-#print(iris)
+# read our training data into a list
+training_data = []
+with open("vectors_scores.txt") as vectors_scores:
+	training_data = vectors_scores.read().splitlines()
+
+realX = []
+realY = []
+for line in training_data:
+	realX.append(line[:len(line) - 1])
+	realY.append(int(line[len(line) - 1]))
+
+print(realY)
+
+print(iris)
 
 # Take the first two features. We could avoid this by using a two-dim dataset
 #X = iris.data[:, :2]
 X = iris.data[:, :3]
 y = iris.target
 
-# we create an instance of SVM and fit out data. We do not scale our
+print(y)
+
+# we create an instance of SVM and fit our data. We do not scale our
 # data since we want to plot the support vectors
 C = 1.0  # SVM regularization parameter
 models = (svm.SVC(kernel='linear', C=C),

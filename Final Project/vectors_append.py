@@ -28,29 +28,32 @@ def main():
 
 	with open("sentence_vectors_scores.txt", "w") as sentence_vectors_scores:
 		with open("vectors.txt", "w") as vectors:
-			with open("clean_train.csv", 'r', newline='') as incsvfile:
-				csv_reader = csv.reader(incsvfile, delimiter=",")
-				rownum = 0
-				for row in csv_reader:
-					score = row[3]
-					#if(rownum < len(lines) and rownum != 0): 
-					if(rownum != 0): 
-						# attach scores to the end of lines
-						print(lines[rownum - 1] + score, file=sentence_vectors_scores)
-						# remove sentences from the beginning of lines and print
-						# just the vectors to vectors
-						tokens = lines[rownum - 1].split()
-						vectors_only = [token for token in tokens if token_is_number(token)]
-						separator = " "
-						vector_only = separator.join(vectors_only)
-						print(vector_only, file=vectors)
-					rownum += 1
+			with open("vectors_scores.txt", "w") as vectors_scores:
+				with open("clean_train.csv", 'r', newline='') as incsvfile:
+					csv_reader = csv.reader(incsvfile, delimiter=",")
+					rownum = 0
+					for row in csv_reader:
+						score = row[3]
+						#if(rownum < len(lines) and rownum != 0): 
+						if(rownum != 0): 
+							# attach scores to the end of lines
+							print(lines[rownum - 1] + score, file=sentence_vectors_scores)
+							# remove sentences from the beginning of lines and print
+							# just the vectors to vectors
+							tokens = lines[rownum - 1].split()
+							vectors_only = [token for token in tokens if token_is_number(token)]
+							separator = " "
+							vector_only = separator.join(vectors_only)
+							print(vector_only, file=vectors)
+							print(vector_only + " " + score, file=vectors_scores)
+						rownum += 1
 					
 
 
 
 
 	vectors.close()
+	vectors_scores.close()
 	sentence_vectors_scores.close()
 
 
