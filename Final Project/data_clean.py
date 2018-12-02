@@ -17,6 +17,7 @@
 
 
 # Machine Learning Libraries Imports
+import operator
 import nltk
 from nltk.corpus import stopwords
 nltk.download('wordnet')
@@ -99,6 +100,8 @@ def main():
 			cleaned_phrase = clean_phrase(phrase)
 			clean_corpus_phrases.append(cleaned_phrase)
 		print("Done reading data             ")
+		
+	
 
 		# Detect words that only occur once in the entire corpus. We will
 		# throw those out
@@ -139,7 +142,16 @@ def main():
 	# now output dictionary of all words in dataset
 	for word in dictionary_list:
 		dictionary_txt.write(word + '\n')
-		
+
+	# also output sorted cleaned_train list
+	reader = csv.reader(open("clean_train.csv"), delimiter = ",")
+	sortedlist = sorted(reader, key=operator.itemgetter(3))
+	sorted_clean_train = open("sorted_clean_train.txt", "w")
+
+	for line in sortedlist:
+		sorted_clean_train.write(str(line) + "\n")
+	sorted_clean_train.close()
+
 	incsvfile.close()
 	outcsvfile.close()
 	labeled_clean_train_txt.close()
