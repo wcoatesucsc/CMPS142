@@ -19,24 +19,36 @@ from sklearn.metrics import *
 # for some reason the target is an array
 import array
 
-
-
 # set each to True if we want to train/predict this model
-lksvc = True 
+lksvc = True
 lsvc = True 
-rbfsvc = True 
-polysvc = True 
+rbfsvc = True
+polysvc = True
 
 # Function to print out various metrics of the SVM models
 def output_metrics(y_true, y_pred):
 	print("Confusion Matrix:")
 	print(confusion_matrix(y_true, y_pred))
+	print("Accuracy:")
+	print(accuracy_score(y_true, y_pred))
 	print("Precision:")
 	print(precision_score(y_true, y_pred, average=None))
+	print("Micro-average Precision:")
+	print(precision_score(y_true, y_pred, average='micro'))
+	print("Weighted-average Precision:")
+	print(precision_score(y_true, y_pred, average='weighted'))
 	print("Recall:")
 	print(recall_score(y_true, y_pred, average=None))
+	print("Micro-average Recall:")
+	print(recall_score(y_true, y_pred, average='micro'))
+	print("Weighted-average Recall:")
+	print(recall_score(y_true, y_pred, average='weighted'))
 	print("F1 Score:")
 	print(f1_score(y_true, y_pred, average=None))
+	print("Micro-average F1 Score:")
+	print(f1_score(y_true, y_pred, average='micro'))
+	print("Weighted-average F1 Score:")
+	print(f1_score(y_true, y_pred, average='weighted'))
 
 # import some data to play with
 #iris = datasets.load_iris()
@@ -54,6 +66,7 @@ for line in training_data:
 	realX.append(vector_list[:len(vector_list) - 1])
 	realY.append(int(vector_list[len(vector_list) - 1]))
 # also train on the cross-validation set, so an 80-20 split for training-testing
+'''
 with open("vectors_scores_20_cross.txt") as train2:
 	training_data_2 = train2.read().splitlines()
 for line in training_data_2:
@@ -61,7 +74,7 @@ for line in training_data_2:
 	vector_list = [float(component) for component in vector_list]
 	realX.append(vector_list[:len(vector_list) - 1])
 	realY.append(int(vector_list[len(vector_list) - 1]))
-
+'''
 #print(realY)
 
 #print(iris)
@@ -77,15 +90,39 @@ for line in training_data_2:
 print("Initializing models")
 
 C = 1.0  # SVM regularization parameter
+max_iters = -1 
+#class_weights = {0: 1, 1:4, 2:10, 3:4, 4:1}
+#class_weights = {0: 10, 1:4, 2:1, 3:4, 4:10}
+# try 'balanced' for the class_weights instead
+class_weights = 'balanced'
+#class_weights = None
 
 if(lksvc):
-	linear_kernel_svc = svm.SVC(kernel='linear', C=C)
+	# experimenting with class_weight to handle imbalanced
+	# data
+	linear_kernel_svc = svm.SVC(kernel='linear',
+				class_weight=class_weights,
+				max_iter=max_iters,
+				verbose=True,
+				C=C)
 if(lsvc):
-	linear_svc        = svm.LinearSVC(C=C)
+	linear_svc        = svm.LinearSVC(class_weight=class_weights,
+				verbose=True,
+				C=C)
 if(rbfsvc):
-	rbf_kernel_svc    = svm.SVC(kernel='rbf', gamma=0.7, C=C)
+	rbf_kernel_svc    = svm.SVC(kernel='rbf', 
+				    class_weight=class_weights,
+				    gamma=0.7, 
+				    max_iter=max_iters,
+				    verbose=True,
+				    C=C)
 if(polysvc):
-	poly_kernel_svc   = svm.SVC(kernel='poly', degree=3, C=C)
+	poly_kernel_svc   = svm.SVC(kernel='poly', 
+				    class_weight=class_weights,
+				    max_iter=max_iters,
+				    degree=3, 
+				    verbose=True,
+				    C=C)
 
 print("FITTING MODELS ==============================") 
 if(lksvc):
@@ -160,6 +197,31 @@ if(polysvc):
 	polysvc_cross_output = []
 
 print("PREDICTING========================")
+if(lksvc):
+	lksvc_cross_output = (linear_kernel_svc.predict(crossX))
+	lksvc_predictions = open("lksvc_predictions.txt", "w")
+	for line in lksvc_cross_output:
+		lksvc_predictions.write(str(line) +  "\n")
+	lksvc_predictions.close()
+if(lsvc):
+	lsvc_cross_output = (linear_svc.predict(crossX))
+	lsvc_predictions = open("lsvc_predictions.txt", "w")
+	for line in lsvc_cross_output:
+		lsvc_predictions.write(str(line) +  "\n")
+	lsvc_predictions.close()
+if(rbfsvc):
+	rbfsvc_cross_output = (rbf_kernel_svc.predict(crossX)) 
+	rbfsvc_predictions = open("rbfsvc_predictions.txt", "w")
+	for line in rbfsvc_cross_output:
+		rbfsvc_predictions.write(str(line) +  "\n")
+	rbfsvc_predictions.close()
+if(polysvc):
+	polysvc_cross_output = (poly_kernel_svc.predict(crossX)) 
+	polysvc_predictions = open("polysvc_predictions.txt", "w")
+	for line in polysvc_cross_output:
+		polysvc_predictions.write(str(line) + "\n")
+	polysvc_predictions.close()
+'''
 for instance in crossX:
 	#print("crossX line = " + str(instance))
 	if(lksvc):
@@ -170,7 +232,7 @@ for instance in crossX:
 		rbfsvc_cross_output.append(rbf_kernel_svc.predict([instance])) 
 	if(polysvc):
 		polysvc_cross_output.append(poly_kernel_svc.predict([instance])) 
-
+'''
 print("DONE PREDICTING===================")
 
 
