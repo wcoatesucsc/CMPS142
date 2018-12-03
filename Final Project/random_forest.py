@@ -11,13 +11,25 @@ def output_metrics(y_true, y_pred):
     print(confusion_matrix(y_true, y_pred))
     print("Precision:")
     print(precision_score(y_true, y_pred, average=None))
+    print("Micro-average Precision:")
+    print(precision_score(y_true, y_pred, average='micro'))
+    print("Weighted-average Precision")
+    print(precision_score(y_true, y_pred, average='weighted'))
     print("Recall:")
     print(recall_score(y_true, y_pred, average=None))
+    print("Micro-average Recall:")
+    print(recall_score(y_true, y_pred, average='micro'))
+    print("Weighted-average Recall:")
+    print(recall_score(y_true, y_pred, average='weighted'))
     print("F1 Score:")
     print(f1_score(y_true, y_pred, average=None))
+    print("Micro-average F1 Score:")
+    print(f1_score(y_true, y_pred, average='micro'))
+    print("Weighted-average F1 Score:")
+    print(f1_score(y_true, y_pred, average='weighted'))
 
 def main():
-    rf = RandomForestClassifier(n_estimators = 1000, random_state = 42)
+    rf = RandomForestClassifier(n_estimators = 1000, random_state = 42, verbose = 2)
 
     training_data = []
     with open("vectors_scores_60.txt") as train:
@@ -55,9 +67,7 @@ def main():
     print("random forest fit")
 
     print("predicting on test set...")
-    predictions = []
-    for instance in testX:
-        predictions.append(rf.predict(instance))
+    predictions = rf.predict(testX)
     print("predictions made")
 
     print("printing metrics")
