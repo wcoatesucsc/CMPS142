@@ -5,8 +5,6 @@
 # Modules that need to be installed (not comprehensive yet)
 # pandas, joblib, numpy, sklearn, ....
 
-rm trainedForest.joblib
-cp backuptrainedForest.joblib.bz2 trainedForest.joblib.bz2
 
 
 # Script to take in CSV file in test.csv format,
@@ -34,7 +32,10 @@ python3.6 random_forest_predict.py
 echo "Done predicting"
 
 echo "Clean up intermediate files"
-rm unlabeled_cleaned_test.txt #test_vectors.txt
+rm unlabeled_cleaned_test.txt test_vectors.txt
+
+echo "Rezip random forest classifier"
+bzip2 trainedForest.joblib
 
 echo "All done! :)"
 
