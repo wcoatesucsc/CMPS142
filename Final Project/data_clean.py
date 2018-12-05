@@ -15,6 +15,11 @@
 # output file, one line at a time.
 #
 
+# Prints error if trying to run with no options
+import sys, getopt
+if len(sys.argv) <= 1:
+	print('data_clean.py -m <test or train>')
+	sys.exit(2)
 
 # Machine Learning Libraries Imports
 import operator
@@ -76,68 +81,103 @@ def filter_words_from_list(phrase, hapaxes):
 	separator = " "
 	filtered_phrase = separator.join(tokens)
 	return filtered_phrase
+
 	
-def main():
+	
+def main(argv):
+	try:
+		opts, args = getopt.getopt(argv,"m:", ["mode="])
+	except getopt.GetoptError:
+		print('data_clean.py -m <test or train>')
+		sys.exit(2)
+	for opt, arg in opts:
+		if opt in ("-m", "--mode"):
+			if arg == 'train':
+				testing = False
+			elif arg == 'test':
+				testing = True
+			else: print('data_clean.py -m <test or train>')
+
+
 	print("Cleaning data! :)")
-	# Also output to a .txt file to play nice with fasttext
-	labeled_clean_train_txt = open("labeled_cleaned_train.txt", "w")
-	unlabeled_clean_train_txt = open("unlabeled_cleaned_train.txt", "w")
+	# also output to a .txt file to play nice with fasttext
+	if(testing):
+		unlabeled_cleaned_test_txt = open("unlabeled_cleaned_test.txt", "w")
+	else:
+		labeled_cleaned_train_txt = open("labeled_cleaned_train.txt", "w")
+		unlabeled_cleaned_train_txt = open("unlabeled_cleaned_train.txt", "w")
 
 	dictionary_txt = open("dictionary.txt", "w")
 
 	# Read data from train.csv and output a cleaned phrase
 	# to each slot in clean_corpus_phrases
-	with open('train.csv', 'r', newline='') as incsvfile:
-		#with open('clean_train.csv', 'w', newline='') as outcsvfile:
-		csv_reader = csv.reader(incsvfile, delimiter=",")
-			
-		rownum = 0	
-		for row in csv_reader:
-			rownum += 1
-			print("Reading row: ", str(rownum), end='\r') 
-			# grab phrase and apply cleaning procedures to it
-			phrase = row[2]
-			cleaned_phrase = clean_phrase(phrase)
-			clean_corpus_phrases.append(cleaned_phrase)
-		print("Done reading data             ")
+#	if(testing):
+	
+	#with open('train.csv', 'r', newline='') as incsvfile:
+	if(testing):
+		incsvfile = open('test.csv', 'r', newline ='')
+	else:
+		incsvfile = open('train.csv', 'r', newline='') 
+		
+	csv_reader = csv.reader(incsvfile, delimiter=",")
+
+	rownum = 0	
+	for row in csv_reader:
+		rownum += 1
+		print("Reading row: ", str(rownum), end='\r') 
+		# grab phrase and apply cleaning procedures to it
+		phrase = row[2]
+		cleaned_phrase = clean_phrase(phrase)
+		clean_corpus_phrases.append(cleaned_phrase)
+	print("Done reading data             ")
 		
 	
 
-		# Detect words that only occur once in the entire corpus. We will
-		# throw those out
-		fdist = FreqDist(clean_corpus_words)
-		dictionary_list = set(clean_corpus_words)
-		#print(dictionary_list)
+	# Detect words that only occur once in the entire corpus. We will
+	# throw those out
+	fdist = FreqDist(clean_corpus_words)
+	dictionary_list = set(clean_corpus_words)
+	#print(dictionary_list)
 
-		hapaxes = fdist.hapaxes()
+	hapaxes = fdist.hapaxes()
 	
-		# Now that we've found the words that only occur once, filter
-		# those out of our cleaned phrases and write those to
-		# the output file
-		with open('clean_train.csv', 'w', newline='') as outcsvfile:
-			csv_writer = csv.writer(outcsvfile, delimiter=",")
-			# write header row
-			# NOTE! WHEN RUNNING ON TEST DATA EXCLUDE SENTIMENT!
+	# Now that we've found the words that only occur once, filter
+	# those out of our cleaned phrases and write those to
+	# the output file
+	if(testing):
+		outcsvfile = open('clean_test.csv', 'w', newline='')
+	else:
+		outcsvfile = open('clean_train.csv', 'w', newline='')
 
-			# resetting the input file so we can retain row information
-			incsvfile.seek(0)
-			rownum = 0
-			for row in csv_reader:
-				rownum += 1
-				print( "Writing row: ", str(rownum), end='\r') 
-				# write each cleaned phrase to the output file,
-				# filtering out the rare words if they occur
-				phrase = clean_corpus_phrases[rownum - 1]
-				filtered_phrase = filter_words_from_list(phrase, hapaxes)
-				# writing to both output csv and output txt
-				# NOTE! WHEN RUNNING ON TEST DATA EXCLUDE SENTIMENT!
-				csv_writer.writerow([row[0], row[1], filtered_phrase, row[3]])
-				if(rownum != 1):
-					score = row[3]
-					labeled_clean_train_txt.write("__label__" + score + " " + filtered_phrase + '\n')
-					unlabeled_clean_train_txt.write(filtered_phrase + '\n')
-			print("Done writing data              ")	
+	csv_writer = csv.writer(outcsvfile, delimiter=",")
+	# write header row
+	# NOTE! WHEN RUNNING ON TEST DATA EXCLUDE SENTIMENT!
 
+	# resetting the input file so we can retain row information
+	incsvfile.seek(0)
+	rownum = 0
+	for row in csv_reader:
+		rownum += 1
+		print( "Writing row: ", str(rownum), end='\r') 
+		# write each cleaned phrase to the output file,
+		# filtering out the rare words if they occur
+		phrase = clean_corpus_phrases[rownum - 1]
+		filtered_phrase = filter_words_from_list(phrase, hapaxes)
+		# writing to both output csv and output txt
+		# NOTE! WHEN RUNNING ON TEST DATA EXCLUDE SENTIMENT!
+		if(testing):
+			csv_writer.writerow([row[0], filtered_phrase])
+		else:
+			csv_writer.writerow([row[0], row[1], filtered_phrase, row[3]])
+
+		if(rownum != 1):
+			if(testing):
+				unlabeled_cleaned_test_txt.write(filtered_phrase + '\n')
+			else:
+				score = row[3]
+				labeled_cleaned_train_txt.write("__label__" + score + " " + filtered_phrase + '\n')
+				unlabeled_cleaned_train_txt.write(filtered_phrase + '\n')
+	print("Done writing data              ")	
 
 	# now output dictionary of all words in dataset
 	for word in dictionary_list:
@@ -152,12 +192,18 @@ def main():
 		sorted_clean_train.write(str(line) + "\n")
 	sorted_clean_train.close()
 
+	if(not testing):
+		print("Cleaned output written to clean_train.csv and labeled_cleaned_train_txt.txt!")
+		print("Also wrote output without labels to unlabeled_clean_train.txt, and a dictionary to dictionary.txt")
+		print("Have a nice day!")
+
 	incsvfile.close()
 	outcsvfile.close()
-	labeled_clean_train_txt.close()
-	unlabeled_clean_train_txt.close()
+	if(testing):
+		unlabeled_cleaned_test_txt.close()
+	else:
+		labeled_cleaned_train_txt.close()
+		unlabeled_cleaned_train_txt.close()
 	dictionary_txt.close()
-	print("Cleaned output written to clean_train.csv and labeled_clean_train_txt.txt!")
-	print("Also wrote output without labels to unlabeled_clean_train.txt, and a dictionary to dictionary.txt")
-	print("Have a nice day!")
-main()
+
+main(sys.argv[1:])
