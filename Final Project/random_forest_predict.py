@@ -49,10 +49,10 @@ print("predictions complete")
 # create a new file whose output is the phrase idea taken from first col of test.csv
 # followed by the prediction
 
-#test_csv = pd.read_csv("test.csv", sep=',', header=None)
+#test_csv = pd.read_csv("testset_1.csv", sep=',', header=None)
 #phrase_id = test_csv.PhraseId
 
-test_csv = open("test.csv", "r", newline='')
+test_csv = open("testset_1.csv", "r", newline='')
 
 
 test_out = open("CoatesWilliamsWynd_predictions.csv", "w", newline='')
