@@ -14,11 +14,12 @@
 # Phrase column, and write the entire row (with a cleaned Phrase) to the 
 # output file, one line at a time.
 #
-
+import imp
 # Prints error if trying to run with no options
 import sys, getopt
-if len(sys.argv) <= 1:
-	print('data_clean.py -m <test or train>')
+usage = "data_clean.py -m <test or train> -f inputfile.csv"
+if len(sys.argv) <= 2:
+	print(usage)
 	sys.exit(2)
 
 # Machine Learning Libraries Imports
@@ -85,10 +86,11 @@ def filter_words_from_list(phrase, hapaxes):
 	
 	
 def main(argv):
+	infilename = ""
 	try:
-		opts, args = getopt.getopt(argv,"m:", ["mode="])
+		opts, args = getopt.getopt(argv,"m:f:", ["mode=","file="])
 	except getopt.GetoptError:
-		print('data_clean.py -m <test or train>')
+		print(usage)
 		sys.exit(2)
 	for opt, arg in opts:
 		if opt in ("-m", "--mode"):
@@ -96,7 +98,11 @@ def main(argv):
 				testing = False
 			elif arg == 'test':
 				testing = True
-			else: print('data_clean.py -m <test or train>')
+			else: print(usage)
+		elif opt in ("-f", "--file"):
+			infilename = arg
+			if infilename[-3:] != "csv":
+				print(usage)
 
 
 	print("Cleaning data! :)")
@@ -115,7 +121,7 @@ def main(argv):
 	
 	#with open('train.csv', 'r', newline='') as incsvfile:
 	if(testing):
-		incsvfile = open('test.csv', 'r', newline ='')
+		incsvfile = open(infilename, 'r', newline ='')
 	else:
 		incsvfile = open('train.csv', 'r', newline='') 
 		
@@ -167,12 +173,13 @@ def main(argv):
 		# NOTE! WHEN RUNNING ON TEST DATA EXCLUDE SENTIMENT!
 		if(testing):
 			csv_writer.writerow([row[0], filtered_phrase])
+			#csv_writer.writerow([row[0], phrase])
 		else:
 			csv_writer.writerow([row[0], row[1], filtered_phrase, row[3]])
 
 		if(rownum != 1):
 			if(testing):
-				unlabeled_cleaned_test_txt.write(filtered_phrase + '\n')
+				unlabeled_cleaned_test_txt.write(filtered_phrase+ '\n')
 			else:
 				score = row[3]
 				labeled_cleaned_train_txt.write("__label__" + score + " " + filtered_phrase + '\n')
