@@ -96,14 +96,14 @@ for word, i in t.word_index.items():
         embedding_matrix[i] = embedding_vector
     
 #Assign training, validation, and test data.
-X_train=padded_docs[0:2000]
-y_train=labels[0:2000]
+X_train=padded_docs[0:4000]
+y_train=labels[0:4000]
 
-X_valid=padded_docs[2000:3000]
-y_valid=labels[2000:3000]
+X_valid=padded_docs[4000:5000]
+y_valid=labels[4000:5000]
 
-X_test=padded_docs[3000:4000]
-y_test=labels[3000:4000]
+X_test=padded_docs[5000:6000]
+y_test=labels[5000:6000]
 
     
 # define model
