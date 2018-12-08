@@ -1,12 +1,13 @@
-#
-# Messing around with the scikit-learn library to implement
-# SVM multi-class classifiers
+# Implementing SVM multi-class classifiers
+# with the scikit-learn library
+
 # Author: Will Coates
 # Started by copy-pasting from:
 # https://scikit-learn.org/stable/auto_examples/svm/plot_iris.html#sphx-glr-auto-examples-svm-plot-iris-py
-#
 
 print(__doc__)
+
+import sys
 
 #quiets a deprecation warning from "cloudpickle", which I can't find on my machine
 import imp 
@@ -15,15 +16,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import svm, datasets
 from sklearn.metrics import *
-
+from joblib import dump, load
 # for some reason the target is an array
 import array
 
 # set each to True if we want to train/predict this model
-lksvc = True
-lsvc = True 
-rbfsvc = True
-polysvc = True
+lksvc = False
+lsvc = True
+rbfsvc = False
+polysvc = False
 
 # Function to print out various metrics of the SVM models
 def output_metrics(y_true, y_pred):
@@ -50,12 +51,10 @@ def output_metrics(y_true, y_pred):
 	print("Weighted-average F1 Score:")
 	print(f1_score(y_true, y_pred, average='weighted'))
 
-# import some data to play with
-#iris = datasets.load_iris()
-
 # read our training data into a list
 training_data = []
 with open("vectors_scores_60.txt") as train:
+#with open(sys.argv[1]) as train:
 	training_data = train.read().splitlines()
 
 realX = []
@@ -66,7 +65,7 @@ for line in training_data:
 	realX.append(vector_list[:len(vector_list) - 1])
 	realY.append(int(vector_list[len(vector_list) - 1]))
 # also train on the cross-validation set, so an 80-20 split for training-testing
-'''
+
 with open("vectors_scores_20_cross.txt") as train2:
 	training_data_2 = train2.read().splitlines()
 for line in training_data_2:
@@ -74,25 +73,15 @@ for line in training_data_2:
 	vector_list = [float(component) for component in vector_list]
 	realX.append(vector_list[:len(vector_list) - 1])
 	realY.append(int(vector_list[len(vector_list) - 1]))
-'''
-#print(realY)
-
-#print(iris)
-
-# Take the first two features. We could avoid this by using a two-dim dataset
-#X = iris.data[:, :2]
-
-#X = iris.data[:, :3]
-#y = iris.target
 
 # we create an instance of SVM and fit our data. We do not scale our
 # data since we want to plot the support vectors
 print("Initializing models")
 
-C = 1.0  # SVM regularization parameter
-max_iters = -1 
+C = 1 # SVM regularization parameter
+max_iters = 1000 
 #class_weights = {0: 1, 1:4, 2:10, 3:4, 4:1}
-#class_weights = {0: 10, 1:4, 2:1, 3:4, 4:10}
+#class_weights = {0:10, 1:4, 2:1, 3:4, 4:10}
 # try 'balanced' for the class_weights instead
 class_weights = 'balanced'
 #class_weights = None
@@ -145,21 +134,11 @@ if(polysvc):
 
 print("DONE FITTING MODELS =========================") 
 
-# title for the plots
+print("DUMPING =========================") 
 
-titles = ('SVC with linear kernel',
-          'LinearSVC (linear kernel)',
-          'SVC with RBF kernel',
-          'SVC with polynomial (degree 3) kernel')
+dump(lsvc, "linearkernelsvc_model.joblib")
 
-# Set-up 2x2 grid for plotting.
-#fig, sub = plt.subplots(2, 2)
-#plt.subplots_adjust(wspace=0.4, hspace=0.4)
-
-#X0, X1 = X[:, 0], X[:, 1]
-#xx, yy = make_meshgrid(X0, X1)
-
-#for clf, title, ax in zip(models, titles, sub.flatten()):
+loaded_model = load("linearkernelsvc_model.joblib")
 
 #
 # Prediction can go here! We can get a prediction from each of our
@@ -179,21 +158,13 @@ for line in cross_validation_data:
 	crossX.append(vector_list[:len(vector_list) - 1])
 	crossY.append(int(vector_list[len(vector_list) - 1]))
 
-#with open("cross_output_linear_kernel_svc.txt", "w") as cross_output:
-
-
 if(lksvc):
-	#lksvc_cross_output = open("cross_output_linear_kernel_svc.txt", "w")
 	lksvc_cross_output = []
 if(lsvc):
-	#lsvc_cross_output = open("cross_output_linear_svc.txt", "w")
 	lsvc_cross_output = []
 if(rbfsvc):
-	#rbfsvc_cross_output = open("rbf_kernel_svc.txt", "w")
 	rbfsvc_cross_output = []
-	
 if(polysvc):
-	#polysvc_cross_output = open("poly_kernel_svc.txt", "w")
 	polysvc_cross_output = []
 
 print("PREDICTING========================")
@@ -221,18 +192,7 @@ if(polysvc):
 	for line in polysvc_cross_output:
 		polysvc_predictions.write(str(line) + "\n")
 	polysvc_predictions.close()
-'''
-for instance in crossX:
-	#print("crossX line = " + str(instance))
-	if(lksvc):
-		lksvc_cross_output.append(linear_kernel_svc.predict([instance]))
-	if(lsvc):
-		lsvc_cross_output.append(linear_svc.predict([instance]))
-	if(rbfsvc):
-		rbfsvc_cross_output.append(rbf_kernel_svc.predict([instance])) 
-	if(polysvc):
-		polysvc_cross_output.append(poly_kernel_svc.predict([instance])) 
-'''
+
 print("DONE PREDICTING===================")
 
 
