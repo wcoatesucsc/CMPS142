@@ -77,7 +77,7 @@ ylabels = model.predict_classes(preparedTestCorpus) #ylabels is a list of number
 #for i in range(len(newReviews)):
 #   print("X=%s, Predicted=%s" % (newReviews[i], ylabels[i]))
 
-test_out = open("RNN_Test_CoatesWilliamsWynd_predictions.csv", "w", newline='')
+test_out = open("CoatesWilliamsWynd_predictions.csv", "w", newline='')
 csv_writer = csv.writer(test_out, delimiter=",")
 csv_writer.writerow(["PhraseId","Sentiment"])
 
