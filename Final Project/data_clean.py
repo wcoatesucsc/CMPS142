@@ -59,8 +59,7 @@ def clean_phrase(phrase):
 	# filter out stop words
 	stop_words = set(stopwords.words('english'))
 	tokens = [word for word in tokens if not word in stop_words]
-        # # OUR ADDITIONS TO TUTORIAL CLEANING METHODS
-	# 
+        # # OUR ADDITION TO TUTORIAL CLEANING METHODS
 	# lemmatization:
 	tokens = [lemmatizer.lemmatize(word) for word in tokens]
 
@@ -117,9 +116,7 @@ def main(argv):
 
 	# Read data from train.csv and output a cleaned phrase
 	# to each slot in clean_corpus_phrases
-#	if(testing):
 	
-	#with open('train.csv', 'r', newline='') as incsvfile:
 	if(testing):
 		incsvfile = open(infilename, 'r', newline ='')
 	else:
@@ -137,8 +134,6 @@ def main(argv):
 		clean_corpus_phrases.append(cleaned_phrase)
 	print("Done reading data             ")
 		
-	
-
 	# Detect words that only occur once in the entire corpus. We will
 	# throw those out
 	fdist = FreqDist(clean_corpus_words)
@@ -156,8 +151,6 @@ def main(argv):
 		outcsvfile = open('clean_train.csv', 'w', newline='')
 
 	csv_writer = csv.writer(outcsvfile, delimiter=",")
-	# write header row
-	# NOTE! WHEN RUNNING ON TEST DATA EXCLUDE SENTIMENT!
 
 	# resetting the input file so we can retain row information
 	incsvfile.seek(0)
@@ -170,10 +163,8 @@ def main(argv):
 		phrase = clean_corpus_phrases[rownum - 1]
 		filtered_phrase = filter_words_from_list(phrase, hapaxes)
 		# writing to both output csv and output txt
-		# NOTE! WHEN RUNNING ON TEST DATA EXCLUDE SENTIMENT!
 		if(testing):
 			csv_writer.writerow([row[0], filtered_phrase])
-			#csv_writer.writerow([row[0], phrase])
 		else:
 			csv_writer.writerow([row[0], row[1], filtered_phrase, row[3]])
 

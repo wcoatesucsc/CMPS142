@@ -134,12 +134,13 @@ if(polysvc):
 
 print("DONE FITTING MODELS =========================") 
 
-print("DUMPING =========================") 
+print("DUMPING TRAINED MODEL =========================") 
 
-dump(lsvc, "linearkernelsvc_model.joblib")
+dump(linear_svc, "linearkernelsvc_model.joblib")
 
 loaded_model = load("linearkernelsvc_model.joblib")
 
+print("DONE DUMPING TRAINED MODEL =========================") 
 #
 # Prediction can go here! We can get a prediction from each of our
 # models
